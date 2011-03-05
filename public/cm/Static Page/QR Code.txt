@@ -1,0 +1,4 @@
+http://chart.apis.google.com/chart
+   ?chs=200x100
+   &cht=qr
+   &chl=http%3A%2F%2Fopenwww.hellohello.com%2Fq%3Flat%3D5%26lng%3D4%26reqdate%3D11-22-2010

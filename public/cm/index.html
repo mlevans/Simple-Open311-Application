@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+<head>
+<title>SF Map</title>
+<style>
+#sfmap a {
+	color: #444;
+	text-decoration: none;
+}
+
+#sfmap{
+border:1px solid black;
+font-size:60%
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>
+
+<script type="text/javascript">
+jQuery(document).ready(function(){
+	//initialize
+	jQuery.getJSON('data/Open311_Requests.json', createDataDisplay);
+	});
+
+function createDataDisplay(data){
+//alert("hi");
+
+var i;
+var j = 0;
+var open311_data = data.requests;
+var lon,lat;
+var markers = [];
+
+var cloudmade = new CM.Tiles.CloudMade.Web({key: '1a193057ca6040fca68c4ae162bec2da', styleId: 1714, copyright: 'Map tiles &copy; 2010 CloudMade Map data CC-BY-SA OpenStreetMap.org ', minZoomLevel: 10
+});
+//1714
+//997
+//subdued version of 1551
+//2400
+//26171
+var map = new CM.Map('sfmap', cloudmade);
+map.disableScrollWheelZoom();
+map.setCenter(new CM.LatLng(37.76, -122.45), 12);
+//var topRight = new CM.ControlPosition(CM.TOP_RIGHT, new CM.Size(10,10));
+
+
+
+//map.addControl(new CM.SmallMapControl());
+//map.addControl(new CM.PermalinkControl());
+
+
+var openIcon = new CM.Icon();
+openIcon.image = "images/open8.png";
+openIcon.iconSize = new CM.Size(8, 8);
+openIcon.iconAnchor = new CM.Point(3.1, 3.5);
+
+var closedIcon = new CM.Icon();
+closedIcon.image = "images/closed8.png";
+closedIcon.iconSize = new CM.Size(8, 8);
+closedIcon.iconAnchor = new CM.Point(3.1, 3.5);
+
+
+for (i=0; i < open311_data.length; i++){
+	lon = open311_data[i].lon;
+	lat = open311_data[i].lat;
+	
+	if(open311_data[i].status == "Open"){
+	markers[j] = new CM.Marker(new CM.LatLng(lat,lon), {title: open311_data[i].service_name + " on " +(open311_data[i].requested_datetime).substring(0,19), icon: openIcon});
+	markers[j].bindInfoWindow("<h2 style='color:#303030; text-align: left' >Open Request</h2>" + "<h3 style='text-align: center'><a href='http://www.codeforamerica.org'>" + open311_data[i].service_name + " at " + open311_data[i].address + " on " +(open311_data[i].requested_datetime).substring(0,19) + "</a></h3><div align='center'><sup>Similar Requests</sup><img width='100' height='30' src='http://chart.apis.google.com/chart?cht=lc&chs=100x30&chd=t:6,23,16,34,39,19,25,39,45,35,16,23,19,35,55,61,45,67,25,30,41&chco=336699&chls=1,1,0&chm=o,990000,0,20,4&chxt=r,x,y&chxs=0,990000,11,0,_|1,990000,1,0,_|2,990000,1,0,_&chxl=0:|12|1:||2:||&chxp=0,43'><sup> on November 14th</sup></div><div style='text-align:center'><br>Expected response in <b>3 days</b> / <a href='http://open311dashboard.codeforamerica.org/q?" + 'lat=' + open311_data[i].lat + '&lng=' + open311_data[i].lon + '&reqdate=' + open311_data[i].requested_datetime+">Learn More</a><br><br></div>", {maxWidth: 310});
+	j++;
+	}
+	
+	if(open311_data[i].status == "Closed"){
+	markers[j] = new CM.Marker(new CM.LatLng(lat,lon), {title: open311_data[i].service_name + " on " +(open311_data[i].requested_datetime).substring(0,19), icon: closedIcon});
+	markers[j].bindInfoWindow("<h2 style='color:#303030; text-align: left' >Closed Request</h2>" + "<h3 style='text-align: center'><a href='http://www.codeforamerica.org'>" + open311_data[i].service_name + " at " + open311_data[i].address + " on " +(open311_data[i].requested_datetime).substring(0,19) + "</a></h3><div style='text-align: center'>Closed on " + open311_data[i].updated_datetime + "</div><div align='center'><br><img width='100' height='60' src='http://chart.apis.google.com/chart?chxl=0:||Fast||||||Slow|&chxs=0,676767,9,0,l,676767|1,FFFFFF,0,0,_,FFFFFF&chxt=x,y&chbh=a&chs=100x60&cht=bvg&chco=DBDBDB|DBDBDB|DBDBDB|DBDBDB|6EAFCF|DBDBDB|DBDBDB|DBDBDB|DBDBDB&chds=0,50&chd=t:10,20,30,40,50,40,30,20,10&chma=|0,5&chtt=Response+Times&chts=676767,9'><div style='text-align:center'><b>5</b> day response time / <a href='http://open311dashboard.codeforamerica.org/q?" + 'lat=' + open311_data[i].lat + '&lng=' + open311_data[i].lon + '&reqdate=' + open311_data[i].requested_datetime+">Learn More</a><br><br></div>", {maxWidth: 300});
+	j++;
+	}
+	//http://www.smagula.org/all/test/map_01.html
+}
+/*
+if(open311_data[i].status == "Open"){
+markers[j] = new CM.Marker(new CM.LatLng(lat, lon), {title: "hi", icon: openIcon});
+j++;
+}
+}
+//alert(markers[0]);
+
+/*
+var sfMarkerLatLng = new CM.LatLng(37.76,-122.45);
+var sfMarker = new CM.Marker(sfMarkerLatLng, {
+	title: "This is San Francisco",
+	icon: sfIcon
+});
+*/
+		var clusterer = new CM.MarkerClusterer(map, {clusterRadius: 60, maxZoomLevel: 14});
+		clusterer.addMarkers(markers);
+//need some kind of reset function
+
+//Add Map Controls
+var CustomMapControl = function() {}; //Creating a "class"; function() as as the constructor method
+
+CustomMapControl.prototype = {
+	initialize: function(map,position){
+		var control = document.createElement('div');
+		//control.style.background = 'white';
+		control.style.padding = '20px';
+		//control.style.cursor = "pointer";
+		//control.style.border = '1px solid #ccc';
+
+	function createZoomButton() {
+		var zoomIn = document.createElement('img');
+		zoomIn.setAttribute('src', 'images/plussign4.png');
+		zoomIn.setAttribute('height', '20');
+		zoomIn.setAttribute('width', '20');
+		zoomIn.setAttribute('alt', 'Zoom In');
+		zoomIn.style.cursor = "pointer";
+		
+		var zoomOut = document.createElement('img');
+		zoomOut.setAttribute('src', 'images/minussign4.png');
+		zoomOut.setAttribute('height', '20');
+		zoomOut.setAttribute('width', '20');
+		zoomOut.setAttribute('alt', 'Zoom In');
+		zoomOut.style.cursor = "pointer";
+
+		//link.href = '';
+		//link.innerHTML = name;
+
+		zoomIn.onclick = function() {
+			map.zoomIn();
+			return false;
+		}
+		
+		zoomOut.onclick = function() {
+			map.zoomOut();
+			//map.clearOverlays();
+			return false;
+		}
+		control.appendChild(zoomIn);
+		//control.appendChild(document.createElement('br'));
+		control.appendChild(document.createElement('br'));
+		control.appendChild(zoomOut);
+	}
+	
+	createZoomButton();
+	//createZoomButton(new CM.LatLng(37,122),11);
+
+	map.getContainer().appendChild(control);
+	return control;
+	},
+
+	getDefaultPosition: function(){
+		return new CM.ControlPosition();
+	}
+}
+
+map.addControl(new CustomMapControl());
+
+}
+</script>
+</head>
+<body>
+<div id="sfmap" style="width: 800px; height: 450px"></div>
+</body>
+</html>
